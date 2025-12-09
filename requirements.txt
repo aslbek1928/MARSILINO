@@ -8,3 +8,4 @@ whitenoise
 gunicorn
 drf-spectacular
 Pillow
+djangorestframework-simplejwt
