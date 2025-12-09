@@ -6,3 +6,5 @@ python-dotenv
 dj-database-url
 whitenoise
 gunicorn
+drf-spectacular
+Pillow
