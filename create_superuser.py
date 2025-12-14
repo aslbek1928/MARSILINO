@@ -8,8 +8,8 @@ django.setup()
 
 def create_superuser():
     User = get_user_model()
-    phone_number = '+998906100908' # Updated per user request
-    password = 'aslbek10.09.2008'
+    phone_number = '+998906100908'
+    password = 'admin123'
 
     if not User.objects.filter(phone_number=phone_number).exists():
         print(f"Creating superuser '{phone_number}'...")
