@@ -5,7 +5,8 @@ from .views import (
     VerifyOTPView, 
     RestaurantAdminLoginView,
     UserProfileView,
-    LikedRestaurantView
+    LikedRestaurantView,
+    DevCallbackView
 )
 
 urlpatterns = [
@@ -13,6 +14,7 @@ urlpatterns = [
     path('auth/request-otp/', RequestOTPView.as_view(), name='request-otp'),
     path('auth/verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('dev-callback/', DevCallbackView.as_view(), name='dev-callback'),
     
     # Restaurant Admin Auth
     path('restaurant-admin/auth/login/', RestaurantAdminLoginView.as_view(), name='admin-login'),

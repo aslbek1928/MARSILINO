@@ -35,3 +35,9 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 class RestaurantAdminLoginSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=20)
     password = serializers.CharField(write_only=True)
+
+
+class DevCallbackSerializer(serializers.Serializer):
+    user_id = serializers.UUIDField()
+    phone_number = serializers.CharField()
+    code = serializers.CharField()
