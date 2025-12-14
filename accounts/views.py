@@ -99,19 +99,23 @@ class DevCallbackView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        user = get_object_or_404(CustomUser, phone_number=phone_number)
-        
         latest_otp = PhoneOTP.objects.filter(phone_number=phone_number, is_verified=False).order_by('-created_at').first()
 
         if not latest_otp:
             return Response(
-                {"error": "No active OTP found for this user."},
+                {"error": "No active OTP found for this mobile number."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        try:
+            user = CustomUser.objects.get(phone_number=phone_number)
+            user_id = user.id
+        except CustomUser.DoesNotExist:
+            user_id = None
+
         serializer = DevCallbackSerializer(data={
-            'user_id': user.id,
-            'phone_number': user.phone_number,
+            'user_id': user_id,
+            'phone_number': phone_number,
             'code': latest_otp.code
         })
         serializer.is_valid(raise_exception=True)

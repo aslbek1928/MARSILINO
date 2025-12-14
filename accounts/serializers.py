@@ -38,6 +38,6 @@ class RestaurantAdminLoginSerializer(serializers.Serializer):
 
 
 class DevCallbackSerializer(serializers.Serializer):
-    user_id = serializers.UUIDField()
+    user_id = serializers.UUIDField(allow_null=True)
     phone_number = serializers.CharField()
     code = serializers.CharField()
