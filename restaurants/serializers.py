@@ -1,10 +1,15 @@
 from rest_framework import serializers
-from .models import Restaurant, RestaurantImage, Cashier
+from .models import Restaurant, RestaurantImage, Cashier, MenuImage
 
 class RestaurantImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = RestaurantImage
         fields = ['id', 'image']
+
+class MenuImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuImage
+        fields = ['id', 'image', 'order']
 
 class RestaurantListSerializer(serializers.ModelSerializer):
     """Basic info for list view"""
@@ -15,13 +20,14 @@ class RestaurantListSerializer(serializers.ModelSerializer):
 class RestaurantDetailSerializer(serializers.ModelSerializer):
     """Full info for detail view"""
     gallery = RestaurantImageSerializer(many=True, read_only=True)
+    menu_images = MenuImageSerializer(many=True, read_only=True)
     
     class Meta:
         model = Restaurant
         fields = [
             'id', 'name', 'logo', 'gallery', 'description', 
             'hashtags', 'working_hours', 'contact_information',
-            'social_media', 'menu', 'location_text', 'discount_percentage',
+            'social_media', 'menu', 'menu_images', 'location_text', 'discount_percentage',
             'created_at', 'updated_at'
         ]
 

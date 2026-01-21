@@ -48,3 +48,14 @@ class Cashier(TimeStampedModel):
 
     def __str__(self):
         return f"{self.name} - {self.restaurant.name}"
+
+class MenuImage(TimeStampedModel):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='menu_images')
+    image = models.ImageField(upload_to='restaurant_menu/')
+    order = models.PositiveIntegerField(default=0, help_text="Display order of menu pages")
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f"Menu Page {self.order} for {self.restaurant.name}"

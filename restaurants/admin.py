@@ -1,15 +1,19 @@
 from django.contrib import admin
-from .models import Restaurant, RestaurantImage, Cashier
+from .models import Restaurant, RestaurantImage, Cashier, MenuImage
 
 class RestaurantImageInline(admin.TabularInline):
     model = RestaurantImage
+    extra = 1
+
+class MenuImageInline(admin.TabularInline):
+    model = MenuImage
     extra = 1
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
     list_display = ('name', 'location_text', 'discount_percentage', 'created_at')
     search_fields = ('name', 'hashtags')
-    inlines = [RestaurantImageInline]
+    inlines = [RestaurantImageInline, MenuImageInline]
 
 @admin.register(Cashier)
 class CashierAdmin(admin.ModelAdmin):
