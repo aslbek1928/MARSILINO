@@ -145,3 +145,20 @@ class CashierPINResetView(APIView):
             "message": "New PIN generated. Save it - it will not be shown again."
         })
 
+
+from rest_framework.permissions import IsAuthenticated
+from .serializers import BookTableSerializer
+
+class BookTableAPIView(APIView):
+    """
+    POST /api/restaurants/book-table/
+    Book a table at a restaurant.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BookTableSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

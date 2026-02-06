@@ -59,3 +59,19 @@ class MenuImage(TimeStampedModel):
 
     def __str__(self):
         return f"Menu Page {self.order} for {self.restaurant.name}"
+
+
+class BookTable(models.Model):
+    BTID = models.AutoField(primary_key=True)
+    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='bookings')
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='bookings')
+    customer_phone_number = models.CharField(max_length=20)
+    number_of_people = models.PositiveIntegerField()
+    date = models.DateField()
+    time = models.TimeField()
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Booking {self.BTID} at {self.restaurant.name} by {self.user.phone_number}"

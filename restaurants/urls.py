@@ -4,13 +4,15 @@ from .views import (
     RestaurantDetailView,
     CashierLoginView,
     CashierCreateView,
-    CashierPINResetView
+    CashierPINResetView,
+    BookTableAPIView
 )
 
 urlpatterns = [
     # Public restaurant endpoints
     path('', RestaurantListView.as_view(), name='restaurant-list'),
     path('<uuid:pk>/', RestaurantDetailView.as_view(), name='restaurant-detail'),
+    path('book-table/', BookTableAPIView.as_view(), name='book-table'),
     
     # Cashier auth
     path('cashier/auth/login/', CashierLoginView.as_view(), name='cashier-login'),

@@ -1,5 +1,12 @@
 from rest_framework import serializers
-from .models import Restaurant, RestaurantImage, Cashier, MenuImage
+from .models import Restaurant, RestaurantImage, Cashier, MenuImage, BookTable
+
+class BookTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookTable
+        fields = ['BTID', 'user', 'restaurant', 'customer_phone_number', 'number_of_people', 'date', 'time', 'comment']
+        read_only_fields = ['BTID', 'user']
+
 
 class RestaurantImageSerializer(serializers.ModelSerializer):
     class Meta:

@@ -18,12 +18,17 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from core.views import index
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('accounts.urls')),
     path('api/restaurants/', include('restaurants.urls')),
     path('api/me/transactions/', include('transactions.urls')),
     path('api/restaurant-admin/', include('restaurants.rap_urls')),
+    
+    # Homepage
+    path('', index, name='index'),
     
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
