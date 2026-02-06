@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -212,3 +212,16 @@ class LikedRestaurantView(APIView):
             "message": message,
             "liked_restaurants": list(request.user.liked_restaurants.values_list('id', flat=True))
         })
+
+from restaurants.serializers import RestaurantListSerializer, RestaurantDetailSerializer
+
+class LikedRestaurantListView(generics.ListAPIView):
+    """
+    GET /api/me/liked-restaurants/
+    List all restaurants liked by the current user.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = RestaurantDetailSerializer
+
+    def get_queryset(self):
+        return self.request.user.liked_restaurants.all()

@@ -6,6 +6,7 @@ from .views import (
     RestaurantAdminLoginView,
     UserProfileView,
     LikedRestaurantView,
+    LikedRestaurantListView,
     DevCallbackView
 )
 
@@ -21,6 +22,7 @@ urlpatterns = [
     
     # User Profile
     path('me/', UserProfileView.as_view(), name='user-profile'),
-    path('me/liked-restaurants/<uuid:restaurant_id>/<str:action>/', LikedRestaurantView.as_view(), name='liked-restaurant'),
+    path('me/liked-restaurants/', LikedRestaurantListView.as_view(), name='liked-restaurant-list'),
+    path('me/liked-restaurants/<uuid:restaurant_id>/<str:action>/', LikedRestaurantView.as_view(), name='liked-restaurant-action'),
 ]
 
