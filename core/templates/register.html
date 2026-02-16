@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Marsilino</title>
+    <style>
+        :root {
+            --primary: #BC2749;
+            --secondary: #2F5D3D;
+            --text-dark: #333;
+            --text-light: #fff;
+            --bg-light: #f9f9f9;
+            --error: #e74c3c;
+            --success: #27ae60;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #fafafa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(188, 39, 73, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #a0213d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(188, 39, 73, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(188, 39, 73, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            background: #fee;
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        .alert-success {
+            background: #efe;
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #1976d2;
+        }
+
+        .link-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .link-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .link-text a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-google {
+            background: white;
+            color: #444;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-transform: none;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-google:hover {
+            background: #f8f8f8;
+            border-color: #ccc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-google img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .divider::before {
+            margin-right: 1rem;
+        }
+
+        .divider::after {
+            margin-left: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">MARSILINO</div>
+        <div class="subtitle">Connecting Tastes, Creating Moments</div>
+        <h2>Create Account</h2>
+
+        {% load socialaccount %}
+        <div id="alertBox" class="hidden"></div>
+
+        <!-- Google OAuth Button -->
+        <a href="{% provider_login_url 'google' %}" class="btn btn-google">
+            <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"
+                    fill="#4285F4" />
+                <path
+                    d="M13.46 15.13c-.83.59-1.96 1-3.46 1-2.64 0-4.88-1.74-5.68-4.15H1.07v2.52C2.72 17.75 6.09 20 10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45z"
+                    fill="#34A853" />
+                <path
+                    d="M3.99 10c0-.69.12-1.35.32-1.97V5.51H1.07A9.973 9.973 0 000 10c0 1.61.39 3.14 1.07 4.49l3.24-2.52c-.2-.62-.32-1.28-.32-1.97z"
+                    fill="#FBBC05" />
+                <path
+                    d="M10 3.88c1.88 0 3.13.81 3.85 1.48l2.84-2.76C14.96.99 12.7 0 10 0 6.09 0 2.72 2.25 1.07 5.51l3.24 2.52C5.12 5.62 7.36 3.88 10 3.88z"
+                    fill="#EA4335" />
+            </svg>
+            Continue with Google
+        </a>
+
+        <div class="divider">OR</div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number</label>
+                <input type="tel" id="phoneNumber" placeholder="+998901234567" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email (Optional)</label>
+                <input type="email" id="email" placeholder="john@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" id="registerBtn" class="btn btn-primary">
+                Register
+            </button>
+        </form>
+
+        <div class="link-text">
+            Already have an account? <a href="/login/">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const form = document.getElementById('registerForm');
+        const phoneInput = document.getElementById('phoneNumber');
+        const fullNameInput = document.getElementById('fullName');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const registerBtn = document.getElementById('registerBtn');
+        const alertBox = document.getElementById('alertBox');
+
+        function showAlert(message, type = 'error') {
+            alertBox.className = 'alert alert-' + type;
+            alertBox.textContent = message;
+            alertBox.classList.remove('hidden');
+        }
+
+        function hideAlert() {
+            alertBox.classList.add('hidden');
+        }
+
+        function setLoading(button, isLoading) {
+            if (isLoading) {
+                button.disabled = true;
+                button.innerHTML += '<span class="loading"></span>';
+            } else {
+                button.disabled = false;
+                const loading = button.querySelector('.loading');
+                if (loading) loading.remove();
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+
+            const phone = phoneInput.value.trim();
+            const fullName = fullNameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!phone || !password) {
+                showAlert('Phone and password are required', 'error');
+                return;
+            }
+
+            setLoading(registerBtn, true);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone_number: phone,
+                        full_name: fullName,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok || response.status === 201) {
+                    // Store tokens
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+
+                    showAlert('Registration successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/api/restaurants/rap/';
+                    }, 1500);
+                } else {
+                    let errorMessage = 'Registration failed. ';
+                    if (data.phone_number) errorMessage += `Phone: ${data.phone_number[0]}. `;
+                    if (data.email) errorMessage += `Email: ${data.email[0]}. `;
+                    if (data.error) errorMessage += data.error;
+                    showAlert(errorMessage || 'Please check your inputs.', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error. Please check your connection.', 'error');
+            } finally {
+                setLoading(registerBtn, false);
+            }
+        });
+    </script>
+</body>
+
+</html>

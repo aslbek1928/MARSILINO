@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     RequestOTPView, 
     VerifyOTPView, 
+    UserRegistrationView,
     RestaurantAdminLoginView,
     UserProfileView,
     LikedRestaurantView,
@@ -14,6 +15,7 @@ urlpatterns = [
     # Mobile OTP Auth
     path('auth/request-otp/', RequestOTPView.as_view(), name='request-otp'),
     path('auth/verify-otp/', VerifyOTPView.as_view(), name='verify-otp'),
+    path('auth/register/', UserRegistrationView.as_view(), name='register-api'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('dev-callback/', DevCallbackView.as_view(), name='dev-callback'),
     

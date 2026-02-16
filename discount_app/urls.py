@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from core.views import index
+from core.views import index, register_page, login_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +29,13 @@ urlpatterns = [
     
     # Homepage
     path('', index, name='index'),
+    
+    # Auth Pages
+    path('register/', register_page, name='register'),
+    path('login/', login_page, name='login'),
+    
+    # OAuth (allauth)
+    path('accounts/', include('allauth.urls')),
     
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

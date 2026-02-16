@@ -5,11 +5,15 @@ from .views import (
     CashierLoginView,
     CashierCreateView,
     CashierPINResetView,
-    BookTableAPIView
+    CashierCreateView,
+    CashierPINResetView,
+    BookTableAPIView,
+    rap_page_view
 )
 
 urlpatterns = [
     # Public restaurant endpoints
+    path('rap/', rap_page_view, name='rap_page'),
     path('', RestaurantListView.as_view(), name='restaurant-list'),
     path('<uuid:pk>/', RestaurantDetailView.as_view(), name='restaurant-detail'),
     path('book-table/', BookTableAPIView.as_view(), name='book-table'),

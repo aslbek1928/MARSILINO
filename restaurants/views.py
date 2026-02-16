@@ -14,7 +14,11 @@ from .serializers import (
     CashierPINResetSerializer
 )
 from .tokens import CashierToken
+from .tokens import CashierToken
 from accounts.permissions import IsRestaurantAdmin
+from django.shortcuts import render
+from .rap_views import get_admin_restaurant
+from django.contrib.auth.decorators import login_required
 
 class RestaurantListView(generics.ListAPIView):
     """
@@ -162,3 +166,14 @@ class BookTableAPIView(APIView):
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@login_required
+def rap_page_view(request):
+    """
+    Server-side rendered page for Restaurant Admin Panel.
+    """
+    restaurant = get_admin_restaurant(request.user)
+    context = {
+        'restaurant': restaurant
+    }
+    return render(request, 'restaurants/rap.html', context)

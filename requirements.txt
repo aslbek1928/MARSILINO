@@ -10,3 +10,6 @@ drf-spectacular
 Pillow
 djangorestframework-simplejwt
 openpyxl
+django-allauth>=0.57.0
+requests
+cryptography

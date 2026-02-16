@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Admin Panel | Marsilino</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #BC2749;
+            --primary-dark: #8a1c36;
+            --secondary: #2F5D3D;
+            --text-dark: #333;
+            --text-light: #fff;
+            --bg-light: #f4f7f6;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #d64d6d 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 3rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            color: #2c3e50;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        /* Card & Table */
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+        
+        th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 1.2rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background-color: #fff9fa;
+        }
+        
+        /* Badges & Status */
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-discount {
+            background-color: #ecfdf5;
+            color: var(--secondary);
+            border: 1px solid #d1fae5;
+        }
+        
+        .badge-hours {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #dbeafe;
+        }
+        
+        /* Images */
+        .rest-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .rest-name {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-edit {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        
+        .btn-edit:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .empty-state {
+            padding: 4rem;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-utensils"></i> MARSILINO ADMIN
+        </div>
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span>{{ user.username }}</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1>Restaurant Overview</h1>
+        </div>
+
+        <div class="card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Restaurant Name</th>
+                            <th>Description</th>
+                            <th>Working Hours</th>
+                            <th>Contact</th>
+                            <th>Discount</th>
+                            <th>Location</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if restaurant %}
+                        <tr>
+                            <td>
+                                <div class="rest-name">
+                                    {% if restaurant.logo %}
+                                        <img src="{{ restaurant.logo.url }}" alt="Logo" class="rest-logo">
+                                    {% else %}
+                                        <div class="rest-logo" style="background: #eee; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-store" style="color: #999;"></i>
+                                        </div>
+                                    {% endif %}
+                                    {{ restaurant.name }}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ restaurant.description|truncatechars:100 }}
+                                </div>
+                                {% if restaurant.hashtags %}
+                                    <div style="margin-top: 5px; font-size: 0.8rem; color: #64748b;">
+                                        <i class="fas fa-hashtag"></i> {{ restaurant.hashtags }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-hours">
+                                    <i class="far fa-clock"></i> {{ restaurant.working_hours|default:"Not set" }}
+                                </span>
+                            </td>
+                            <td>
+                                <div><i class="fas fa-phone-alt" style="color: var(--primary); width: 20px;"></i> {{ restaurant.contact_information|default:"Not set" }}</div>
+                                {% if restaurant.social_media %}
+                                <div style="margin-top: 5px; font-size: 0.8rem;">
+                                    {% for platform, link in restaurant.social_media.items %}
+                                        <a href="{{ link }}" target="_blank" style="color: #64748b; margin-right: 5px;">
+                                            <i class="fab fa-{{ platform|lower }}"></i>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if restaurant.discount_percentage > 0 %}
+                                    <span class="badge badge-discount">
+                                        {{ restaurant.discount_percentage }}% OFF
+                                    </span>
+                                {% else %}
+                                    <span style="color: #94a3b8;">No discount</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="max-width: 150px; white-space: normal;">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i>
+                                    {{ restaurant.location_text|default:"Not set" }}
+                                </div>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fas fa-store-slash"></i>
+                                    <h3>No Restaurant Found</h3>
+                                    <p>You don't have a restaurant associated with your account yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

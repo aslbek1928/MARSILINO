@@ -14,7 +14,8 @@ from .serializers import (
     UserProfileSerializer,
     UserProfileUpdateSerializer,
     RestaurantAdminLoginSerializer,
-    DevCallbackSerializer
+    DevCallbackSerializer,
+    UserRegistrationSerializer
 )
 from .services import OTPService
 from restaurants.models import Restaurant
@@ -225,3 +226,26 @@ class LikedRestaurantListView(generics.ListAPIView):
 
     def get_queryset(self):
         return self.request.user.liked_restaurants.all()
+
+class UserRegistrationView(generics.CreateAPIView):
+    """
+    POST /api/auth/register/
+    Register a new user with phone number and password.
+    """
+    permission_classes = [AllowAny]
+    serializer_class = UserRegistrationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            "user": UserSerializer(user).data,
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "message": "User registered successfully"
+        }, status=status.HTTP_201_CREATED)
