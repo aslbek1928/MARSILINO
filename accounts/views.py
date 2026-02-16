@@ -156,6 +156,10 @@ class RestaurantAdminLoginView(APIView):
                 )
             admin_profile = None
         
+        # Set Django session so @login_required views work
+        from django.contrib.auth import login as django_login
+        django_login(request, user)
+        
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         

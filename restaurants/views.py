@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 from .models import Restaurant, Cashier
 from .serializers import (
@@ -167,13 +168,88 @@ class BookTableAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@login_required
+@login_required(login_url='/login/')
 def rap_page_view(request):
     """
     Server-side rendered page for Restaurant Admin Panel.
+    Shows transaction data for the admin's restaurant.
     """
     restaurant = get_admin_restaurant(request.user)
+    
+    transactions = []
+    total_revenue = 0
+    total_discount = 0
+    transaction_count = 0
+    
+    if restaurant:
+        from transactions.models import Transaction
+        from django.db.models import Sum, Count
+        
+        # Get recent transactions
+        transactions = Transaction.objects.filter(
+            restaurant=restaurant
+        ).select_related('user', 'cashier').order_by('-created_at')[:50]
+        
+        # Get summary stats
+        stats = Transaction.objects.filter(restaurant=restaurant).aggregate(
+            total_revenue=Sum('sum_after_discount'),
+            total_discount=Sum('discount_amount_uzs'),
+            transaction_count=Count('id'),
+            total_before_discount=Sum('sum_before_discount'),
+        )
+        total_revenue = stats['total_revenue'] or 0
+        total_discount = stats['total_discount'] or 0
+        transaction_count = stats['transaction_count'] or 0
+        total_before_discount = stats['total_before_discount'] or 0
+    else:
+        total_before_discount = 0
+    
     context = {
-        'restaurant': restaurant
+        'restaurant': restaurant,
+        'transactions': transactions,
+        'bookings': [],
+        'cashiers': [],
+        'total_revenue': total_revenue,
+        'total_discount': total_discount,
+        'total_before_discount': total_before_discount,
+        'transaction_count': transaction_count,
     }
+    
+    if restaurant:
+        from .models import BookTable, Cashier
+        context['bookings'] = BookTable.objects.filter(restaurant=restaurant).select_related('user').order_by('-date', '-time')
+        context['cashiers'] = Cashier.objects.filter(restaurant=restaurant).order_by('name')
+
     return render(request, 'restaurants/rap.html', context)
+
+
+@login_required(login_url='/login/')
+def update_booking_status(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    import json
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    booking_id = data.get('booking_id')
+    new_status = data.get('status')
+
+    if new_status not in ('pending', 'reserved', 'cancelled'):
+        return JsonResponse({'error': 'Invalid status'}, status=400)
+
+    from .models import BookTable
+    try:
+        # Get restaurant for this admin
+        admin_profile = RestaurantAdmin.objects.filter(user=request.user).select_related('restaurant').first()
+        if not admin_profile:
+            return JsonResponse({'error': 'Not a restaurant admin'}, status=403)
+
+        booking = BookTable.objects.get(BTID=booking_id, restaurant=admin_profile.restaurant)
+        booking.status = new_status
+        booking.save(update_fields=['status'])
+        return JsonResponse({'success': True, 'status': new_status})
+    except BookTable.DoesNotExist:
+        return JsonResponse({'error': 'Booking not found'}, status=404)

@@ -62,6 +62,12 @@ class MenuImage(TimeStampedModel):
 
 
 class BookTable(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('reserved', 'Reserved'),
+        ('cancelled', 'Cancelled'),
+    ]
+
     BTID = models.AutoField(primary_key=True)
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='bookings')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='bookings')
@@ -70,6 +76,7 @@ class BookTable(models.Model):
     date = models.DateField()
     time = models.TimeField()
     comment = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

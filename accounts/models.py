@@ -44,7 +44,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return self.email or self.phone_number or f"User {self.id}"
+        return self.phone_number or self.email or f"User {self.id}"
 
 class PhoneOTP(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

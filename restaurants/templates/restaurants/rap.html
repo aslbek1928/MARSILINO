@@ -1,342 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Admin Panel | Marsilino</title>
+    <title>Dashboard | Marsilino Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary: #BC2749;
-            --primary-dark: #8a1c36;
+            --primary-dark: #9a1f3b;
+            --primary-light: #f9e8ec;
             --secondary: #2F5D3D;
-            --text-dark: #333;
-            --text-light: #fff;
-            --bg-light: #f4f7f6;
-            --card-shadow: 0 10px 20px rgba(0,0,0,0.08);
-            --transition: all 0.3s ease;
+            --secondary-light: #e8f5ec;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
-        
+
         body {
-            background-color: var(--bg-light);
+            background-color: var(--bg);
             color: var(--text-dark);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
-        
-        /* Header */
+
         header {
             background: linear-gradient(135deg, var(--primary) 0%, #d64d6d 100%);
             color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(188, 39, 73, 0.25);
         }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: 1px;
+
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
-        
-        .user-info {
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .logo-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-sub {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+
+        .header-right {
             display: flex;
             align-items: center;
             gap: 1rem;
-            background: rgba(255,255,255,0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            backdrop-filter: blur(5px);
         }
-        
-        /* Main Content */
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
         main {
-            flex: 1;
-            padding: 3rem 2rem;
             max-width: 1400px;
             margin: 0 auto;
-            width: 100%;
+            padding: 2rem;
         }
-        
+
         .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
             margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .tabs-container {
+            display: flex;
+            background: white;
+            padding: 6px;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: var(--primary);
+            box-shadow: 0 4px 12px rgba(188, 39, 73, 0.2);
+        }
+
+        #stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.revenue {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .stat-icon.count {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .stat-icon.gross {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .stat-info h3 {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: none;
+        }
+
+        .card.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
         }
-        
-        h1 {
-            font-size: 2.2rem;
-            color: #2c3e50;
-            position: relative;
-            padding-bottom: 10px;
+
+        .card-header h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        h1::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 2px;
+
+        .card-header h2 i {
+            color: var(--primary);
         }
-        
-        /* Card & Table */
-        .card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
+
         .table-container {
             overflow-x: auto;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             white-space: nowrap;
         }
-        
-        th {
+
+        thead th {
             background-color: #f8fafc;
-            color: #64748b;
+            color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.85rem;
-            padding: 1.2rem 1.5rem;
+            font-size: 0.72rem;
+            padding: 0.9rem 1.25rem;
             text-align: left;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border);
+            letter-spacing: 0.5px;
         }
-        
-        td {
-            padding: 1.2rem 1.5rem;
+
+        tbody td {
+            padding: 0.9rem 1.25rem;
             border-bottom: 1px solid #f1f5f9;
             color: #334155;
-            vertical-align: middle;
+            font-size: 0.88rem;
         }
-        
-        tr:last-child td {
-            border-bottom: none;
+
+        tbody tr:hover td {
+            background-color: #fafbfc;
         }
-        
-        tr:hover td {
-            background-color: #fff9fa;
-        }
-        
-        /* Badges & Status */
+
         .badge {
-            padding: 0.4rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
             display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
-        
-        .badge-discount {
-            background-color: #ecfdf5;
-            color: var(--secondary);
+
+        .active-badge {
+            background: #ecfdf5;
+            color: #059669;
             border: 1px solid #d1fae5;
         }
-        
-        .badge-hours {
-            background-color: #eff6ff;
-            color: #1d4ed8;
-            border: 1px solid #dbeafe;
+
+        .inactive-badge {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
         }
-        
-        /* Images */
-        .rest-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .rest-name {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+
+        .amount {
             font-weight: 600;
-            color: var(--text-dark);
+            font-variant-numeric: tabular-nums;
         }
-        
-        /* Buttons */
-        .btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+
+        .amount-positive {
+            color: #059669;
         }
-        
-        .btn-edit {
-            background-color: #f1f5f9;
-            color: #475569;
-        }
-        
-        .btn-edit:hover {
-            background-color: #e2e8f0;
-            color: #1e293b;
+
+        .amount-discount {
+            color: #d97706;
         }
 
         .empty-state {
-            padding: 4rem;
+            padding: 4rem 2rem;
             text-align: center;
-            color: #64748b;
+            color: var(--text-muted);
         }
-        
+
         .empty-state i {
             font-size: 3rem;
             margin-bottom: 1rem;
             color: #cbd5e1;
         }
 
-        /* Animations */
-        @keyframes fadeInUp {
+        .under-development {
+            padding: 5rem 2rem;
+            text-align: center;
+            background: white;
+            border-radius: var(--radius);
+            border: 2px dashed var(--border);
+        }
+
+        .under-development i {
+            font-size: 4rem;
+            color: #fbbf24;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Status dropdown */
+        .status-select {
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            outline: none;
+            transition: all 0.2s;
+            appearance: auto;
+            background: white;
+        }
+
+        .status-select.status-pending {
+            color: #d97706;
+            border-color: #fbbf24;
+            background: #fffbeb;
+        }
+
+        .status-select.status-reserved {
+            color: #059669;
+            border-color: #34d399;
+            background: #ecfdf5;
+        }
+
+        .status-select.status-cancelled {
+            color: #ef4444;
+            border-color: #f87171;
+            background: #fef2f2;
+        }
+
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
-        @media (max-width: 768px) {
+
+        @media (max-width: 1024px) {
             .page-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
             }
         }
+
+        @media (max-width: 768px) {
+
+            .header-left .logo-divider,
+            .header-left .logo-sub {
+                display: none;
+            }
+
+            .tabs-container {
+                width: 100%;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .tab-btn {
+                flex-shrink: 0;
+            }
+        }
     </style>
 </head>
+
 <body>
     <header>
-        <div class="logo">
-            <i class="fas fa-utensils"></i> MARSILINO ADMIN
+        <div class="header-left">
+            <span class="logo">MARSILINO</span>
+            <span class="logo-divider"></span>
+            <span class="logo-sub">Admin Portal</span>
         </div>
-        <div class="user-info">
-            <i class="fas fa-user-circle"></i>
-            <span>{{ user.username }}</span>
+        <div class="header-right">
+            <div class="user-pill">
+                <i class="fas fa-store"></i>
+                {% if restaurant %}{{ restaurant.name }}{% else %}Admin{% endif %}
+            </div>
+            <a href="/login/" class="btn-logout" onclick="localStorage.clear();">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
     </header>
 
     <main>
         <div class="page-header">
-            <h1>Restaurant Overview</h1>
+            <div>
+                <h1 class="page-title">{% if restaurant %}{{ restaurant.name }} Dashboard{% else %}Admin Dashboard{% endif %}</h1>
+                <p class="page-subtitle">Manage your restaurant operations from one place</p>
+            </div>
         </div>
 
-        <div class="card">
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('reservations')"><i class="fas fa-calendar-check"></i>
+                Reservations</button>
+            <button class="tab-btn" onclick="switchTab('transactions')"><i class="fas fa-exchange-alt"></i>
+                Transactions</button>
+            <button class="tab-btn" onclick="switchTab('cashiers')"><i class="fas fa-users-cog"></i> Cashiers</button>
+            <button class="tab-btn" onclick="switchTab('notifications')"><i class="fas fa-bell"></i>
+                Notifications</button>
+        </div>
+
+        <!-- Reservations Tab -->
+        <div id="reservations-card" class="card active">
+            <div class="card-header">
+                <h2><i class="fas fa-calendar-day"></i> Customer Reservations</h2>
+                <span class="badge active-badge">{{ bookings|length }} Bookings</span>
+            </div>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Restaurant Name</th>
-                            <th>Description</th>
-                            <th>Working Hours</th>
-                            <th>Contact</th>
-                            <th>Discount</th>
-                            <th>Location</th>
-                            <th>Actions</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th>People</th>
+                            <th>Date &amp; Time</th>
+                            <th>Comment</th>
+                            <th>Status</th>
+                            <th>Created</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% if restaurant %}
+                        {% if bookings %}
+                        {% for booking in bookings %}
                         <tr>
+                            <td class="amount">{{ booking.user.full_name|default:"—" }}</td>
+                            <td>{{ booking.customer_phone_number }}</td>
+                            <td class="amount">{{ booking.number_of_people }}</td>
                             <td>
-                                <div class="rest-name">
-                                    {% if restaurant.logo %}
-                                        <img src="{{ restaurant.logo.url }}" alt="Logo" class="rest-logo">
-                                    {% else %}
-                                        <div class="rest-logo" style="background: #eee; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas fa-store" style="color: #999;"></i>
-                                        </div>
-                                    {% endif %}
-                                    {{ restaurant.name }}
+                                <div class="amount">{{ booking.date|date:"d M Y" }}</div>
+                                <div style="font-size:0.8rem;color:var(--text-muted)">{{ booking.time|time:"H:i" }}
                                 </div>
                             </td>
-                            <td>
-                                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-                                    {{ restaurant.description|truncatechars:100 }}
-                                </div>
-                                {% if restaurant.hashtags %}
-                                    <div style="margin-top: 5px; font-size: 0.8rem; color: #64748b;">
-                                        <i class="fas fa-hashtag"></i> {{ restaurant.hashtags }}
-                                    </div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge badge-hours">
-                                    <i class="far fa-clock"></i> {{ restaurant.working_hours|default:"Not set" }}
-                                </span>
-                            </td>
-                            <td>
-                                <div><i class="fas fa-phone-alt" style="color: var(--primary); width: 20px;"></i> {{ restaurant.contact_information|default:"Not set" }}</div>
-                                {% if restaurant.social_media %}
-                                <div style="margin-top: 5px; font-size: 0.8rem;">
-                                    {% for platform, link in restaurant.social_media.items %}
-                                        <a href="{{ link }}" target="_blank" style="color: #64748b; margin-right: 5px;">
-                                            <i class="fab fa-{{ platform|lower }}"></i>
-                                        </a>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if restaurant.discount_percentage > 0 %}
-                                    <span class="badge badge-discount">
-                                        {{ restaurant.discount_percentage }}% OFF
-                                    </span>
-                                {% else %}
-                                    <span style="color: #94a3b8;">No discount</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div style="max-width: 150px; white-space: normal;">
-                                    <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i>
-                                    {{ restaurant.location_text|default:"Not set" }}
-                                </div>
-                            </td>
-                            <td>
-                                <a href="#" class="btn btn-edit">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                            </td>
+                            <td
+                                style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:normal;font-size:0.8rem;">
+                                {{ booking.comment|default:"—" }}</td>
+                            <td><select class="status-select status-{{ booking.status }}"
+                                    data-booking-id="{{ booking.BTID }}" onchange="updateBookingStatus(this)">
+                                    <option value="pending" {% if booking.status == "pending" %} selected{% endif %}>
+                                        Pending</option>
+                                    <option value="reserved" {% if booking.status == "reserved" %} selected{% endif %}>
+                                        Reserved</option>
+                                    <option value="cancelled" {% if booking.status == "cancelled" %} selected{% endif %}>
+                                        Cancelled</option>
+                                </select></td>
+                            <td style="color:var(--text-muted);font-size:0.8rem;">{{ booking.created_at|date:"d M H:i" }}</td>
                         </tr>
+                        {% endfor %}
                         {% else %}
                         <tr>
                             <td colspan="7">
-                                <div class="empty-state">
-                                    <i class="fas fa-store-slash"></i>
-                                    <h3>No Restaurant Found</h3>
-                                    <p>You don't have a restaurant associated with your account yet.</p>
+                                <div class="empty-state"><i class="fas fa-calendar-times"></i>
+                                    <h3>No Reservations</h3>
+                                    <p>Table bookings will appear here once customers book via the app.</p>
                                 </div>
                             </td>
                         </tr>
@@ -345,6 +524,164 @@
                 </table>
             </div>
         </div>
+
+        <!-- Transactions Tab -->
+        <div id="transactions-card" class="card">
+            <div id="stats-section" style="padding:1.5rem 1.5rem 0 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-icon count"><i class="fas fa-receipt"></i></div>
+                    <div class="stat-info">
+                        <h3>Transactions</h3>
+                        <div class="stat-value">{{ transaction_count }}</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon gross"><i class="fas fa-coins"></i></div>
+                    <div class="stat-info">
+                        <h3>Gross Revenue</h3>
+                        <div class="stat-value">{{ total_before_discount|floatformat:0 }} <small
+                                style="font-size:0.5em;color:var(--text-muted)">UZS</small></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon revenue"><i class="fas fa-wallet"></i></div>
+                    <div class="stat-info">
+                        <h3>Net Revenue</h3>
+                        <div class="stat-value">{{ total_revenue|floatformat:0 }} <small
+                                style="font-size:0.5em;color:var(--text-muted)">UZS</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-header">
+                <h2><i class="fas fa-history"></i> Recent Transactions</h2>
+                <span class="badge active-badge">Last 50</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Cashier</th>
+                            <th>Total</th>
+                            <th>Discount</th>
+                            <th>Paid</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if transactions %}
+                        {% for tx in transactions %}
+                        <tr>
+                            <td>
+                                <div class="amount" style="font-size:0.85rem;">{{ tx.user.full_name|default:"—" }}</div>
+                                <div style="font-size:0.75rem;color:var(--text-muted)">{{ tx.user.phone_number }}</div>
+                            </td>
+                            <td>{{ tx.cashier.name|default:"—" }}</td>
+                            <td class="amount">{{ tx.sum_before_discount|floatformat:0 }}</td>
+                            <td><span class="amount-discount" style="font-size:0.8rem;">-{{ tx.discount_amount_uzs|floatformat:0 }}</span> <small
+                                    style="color:var(--text-muted)">({{ tx.discount_percentage }}%)</small></td>
+                            <td class="amount amount-positive">{{ tx.sum_after_discount|floatformat:0 }}</td>
+                            <td style="color:var(--text-muted);font-size:0.8rem;">{{ tx.created_at|date:"d M" }} {{ tx.created_at|time:"H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state"><i class="fas fa-money-bill-wave"></i>
+                                    <h3>No Transactions</h3>
+                                    <p>Sales records will appear here after orders are finalized by cashiers.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cashiers Tab -->
+        <div id="cashiers-card" class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-user-shield"></i> Restaurant Cashiers</h2><span class="badge active-badge">{{ cashiers|length }} Staff</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone Number</th>
+                            <th>Status</th>
+                            <th>Added Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if cashiers %}
+                        {% for cashier in cashiers %}
+                        <tr>
+                            <td class="amount">{{ cashier.name }}</td>
+                            <td class="amount">{{ cashier.phone_number }}</td>
+                            <td>{% if cashier.is_active %}<span class="badge active-badge">Active</span>{% else %}<span
+                                    class="badge inactive-badge">Inactive</span>{% endif %}</td>
+                            <td style="color:var(--text-muted);font-size:0.85rem;">{{ cashier.created_at|date:"d M Y" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state"><i class="fas fa-user-slash"></i>
+                                    <h3>No Cashiers Found</h3>
+                                    <p>Add cashiers via the management API or Django Admin.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="notifications-card" class="card">
+            <div class="under-development">
+                <i class="fas fa-tools"></i>
+                <h2>Notifications Module</h2>
+                <p style="color:var(--text-muted);margin-top:0.5rem;font-size:1.1rem;">This feature is currently under
+                    development.<br>Soon you'll be able to manage customer alerts and marketing messages here.</p>
+            </div>
+        </div>
     </main>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(function (btn) {
+                btn.classList.remove('active');
+                if (btn.innerText.toLowerCase().includes(tabName)) btn.classList.add('active');
+            });
+            document.querySelectorAll('.card').forEach(function (card) { card.classList.remove('active'); });
+            document.getElementById(tabName + '-card').classList.add('active');
+        }
+
+        function updateBookingStatus(selectEl) {
+            var bookingId = selectEl.getAttribute('data-booking-id');
+            var newStatus = selectEl.value;
+            selectEl.className = 'status-select status-' + newStatus;
+            fetch('/api/restaurants/rap/update-booking-status/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+            }).then(function (r) { return r.json(); }).then(function (data) {
+                if (!data.success) alert('Error: ' + (data.error || 'Unknown error'));
+            }).catch(function (err) { alert('Network error'); });
+        }
+
+        function getCookie(name) {
+            var value = '; ' + document.cookie;
+            var parts = value.split('; ' + name + '=');
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+    </script>
 </body>
+
 </html>

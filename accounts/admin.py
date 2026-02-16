@@ -40,6 +40,10 @@ class PhoneOTPAdmin(admin.ModelAdmin):
 
 @admin.register(RestaurantAdmin)
 class RestaurantAdminAdmin(admin.ModelAdmin):
-    list_display = ('user', 'restaurant')
+    list_display = ('get_phone', 'restaurant')
     search_fields = ('user__phone_number', 'restaurant__name')
+
+    def get_phone(self, obj):
+        return obj.user.phone_number
+    get_phone.short_description = 'Admin Phone'
 
