@@ -9,10 +9,10 @@ class Migration(migrations.Migration):
         ('accounts', '0002_phoneotp_restaurantadmin'),
     ]
 
-    # Force this to run before allauth's data migration which requires the email field
-    # We target both initial and the specific failing migration for maximum robustness
+    # Force this to run before allauth's data migration which requires the email field.
+    # We removed ('account', '0001_initial') because it is already applied on Render,
+    # and adding a 'run_before' to an applied migration causes InconsistentMigrationHistory.
     run_before = [
-        ('account', '0001_initial'),
         ('account', '0006_emailaddress_lower'),
     ]
 
