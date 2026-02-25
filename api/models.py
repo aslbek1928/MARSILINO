@@ -35,6 +35,7 @@ class CustomUser(AbstractUser):
     )
     username = None  # Remove username field
     phone_number = models.CharField(_("phone number"), max_length=20, unique=True)
+    full_name = models.CharField(_("full name"), max_length=255, blank=True)
     wallet_balance = models.DecimalField(_("wallet balance"), max_digits=12, decimal_places=2, default=0.00)
     language = models.CharField(
         max_length=2, 
@@ -42,6 +43,7 @@ class CustomUser(AbstractUser):
         default='ru',
         verbose_name=_("language preference")
     )
+    liked_restaurants = models.ManyToManyField('Restaurant', related_name='liked_by', blank=True)
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []
@@ -49,7 +51,17 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return f"{self.phone_number} (Bal: {self.wallet_balance})"
+        return f"{self.phone_number} ({self.full_name or 'No Name'})"
+
+
+class FCMDevice(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='fcm_devices')
+    fcm_token = models.TextField(unique=True)
+    device_type = models.CharField(max_length=20, choices=(('ios', 'iOS'), ('android', 'Android')))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.device_type} token for {self.user.phone_number}"
 
 
 class Tag(models.Model):

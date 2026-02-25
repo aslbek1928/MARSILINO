@@ -4,6 +4,8 @@ from rest_framework.permissions import AllowAny
 from django.utils import translation
 from .models import Tag, Restaurant
 from .serializers import TagSerializer, RestaurantSerializer
+from rest_framework.pagination import PageNumberPagination
+import math
 
 class UserLanguageMixin:
     """Activates the user's preferred language if authenticated."""
@@ -13,6 +15,19 @@ class UserLanguageMixin:
             # The language field corresponds to our supported language codes (en, ru, uz)
             translation.activate(request.user.language)
             request.LANGUAGE_CODE = translation.get_language()
+
+class CustomPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'limit'
+    
+    def get_paginated_response(self, data):
+        return Response({
+            "success": True,
+            "data": data,
+            "total": self.page.paginator.count,
+            "page": self.page.number,
+            "pages": self.page.paginator.num_pages
+        })
 
 class TagListView(UserLanguageMixin, generics.ListAPIView):
     queryset = Tag.objects.all()
@@ -30,18 +45,25 @@ class TagListView(UserLanguageMixin, generics.ListAPIView):
 class RestaurantListView(UserLanguageMixin, generics.ListAPIView):
     serializer_class = RestaurantSerializer
     permission_classes = [AllowAny]
+    pagination_class = CustomPagination
     
     def get_queryset(self):
         queryset = Restaurant.objects.all()
+        # Add filtering by liked status if requested or pass it in serializer context
         tags_param = self.request.query_params.get('tags')
         if tags_param:
             tag_ids = [t.strip() for t in tags_param.split(',')]
             for tag_id in tag_ids:
                 queryset = queryset.filter(tags__id=tag_id)
-        return queryset.distinct()
+        return queryset.distinct().order_by('name')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(queryset, many=True)
         return Response({
             "success": True,
@@ -53,8 +75,9 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .models import RedeemedReceipt, WalletTransaction, CustomUser
+from .models import RedeemedReceipt, WalletTransaction, CustomUser, FCMDevice
 from .services import verify_soliq_receipt, SoliqVerificationError
+from .serializers import WalletTransactionSerializer, FCMDeviceSerializer
 
 class WalletView(UserLanguageMixin, APIView):
     permission_classes = [IsAuthenticated]
@@ -77,6 +100,27 @@ class WalletView(UserLanguageMixin, APIView):
             }
         })
 
+class WalletTransactionListView(UserLanguageMixin, generics.ListAPIView):
+    serializer_class = WalletTransactionSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        return WalletTransaction.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            "success": True,
+            "data": serializer.data
+        })
+
 class WalletAddView(UserLanguageMixin, APIView):
     permission_classes = [IsAuthenticated]
 
@@ -91,7 +135,7 @@ class WalletAddView(UserLanguageMixin, APIView):
         if RedeemedReceipt.objects.filter(receipt_id=receipt_id).exists():
             return Response({
                 "success": False,
-                "error": "RECEIPT_ALREADY_REDEEMED",
+                "error_code": "RECEIPT_ALREADY_REDEEMED",
                 "message": "This receipt has already been used for cashback."
             }, status=409)
 
@@ -100,7 +144,7 @@ class WalletAddView(UserLanguageMixin, APIView):
         except Restaurant.DoesNotExist:
             return Response({
                 "success": False,
-                "error": "RESTAURANT_NOT_FOUND",
+                "error_code": "RESTAURANT_NOT_FOUND",
                 "message": "Restaurant not found."
             }, status=422)
 
@@ -156,7 +200,7 @@ class WalletTransferView(UserLanguageMixin, APIView):
             if balance_before < amount or amount <= 0:
                 return Response({
                     "success": False,
-                    "error": "INSUFFICIENT_BALANCE",
+                    "error_code": "INSUFFICIENT_BALANCE",
                     "message": "Not enough balance to transfer."
                 }, status=400)
 
@@ -194,12 +238,12 @@ class ReceiptVerifyView(UserLanguageMixin, APIView):
         req_restaurant_id = request.data.get('restaurant_id')
 
         if not qr_code:
-            return Response({"success": False, "error": "MISSING_DATA", "message": "qr_code is required"}, status=400)
+            return Response({"success": False, "error_code": "MISSING_DATA", "message": "qr_code is required"}, status=400)
 
         try:
             parsed_data = verify_soliq_receipt(qr_code)
         except SoliqVerificationError as e:
-            return Response({"success": False, "error": "INVALID_FORMAT", "message": str(e)}, status=400)
+            return Response({"success": False, "error_code": "INVALID_FORMAT", "message": str(e)}, status=400)
 
         receipt_id = parsed_data['receipt_id']
         tin = parsed_data['tin']
@@ -210,14 +254,14 @@ class ReceiptVerifyView(UserLanguageMixin, APIView):
         except Restaurant.DoesNotExist:
             return Response({
                 "success": False,
-                "error": "RESTAURANT_MISMATCH",
+                "error_code": "RESTAURANT_MISMATCH",
                 "message": "This receipt does not belong to any registered restaurant."
             }, status=422)
 
         if req_restaurant_id and str(restaurant.id) != str(req_restaurant_id):
             return Response({
                 "success": False,
-                "error": "RESTAURANT_MISMATCH",
+                "error_code": "RESTAURANT_MISMATCH",
                 "message": "This receipt does not belong to the requesting restaurant."
             }, status=422)
 
@@ -226,7 +270,7 @@ class ReceiptVerifyView(UserLanguageMixin, APIView):
         if already_redeemed:
             return Response({
                 "success": False,
-                "error": "RECEIPT_ALREADY_REDEEMED",
+                "error_code": "RECEIPT_ALREADY_REDEEMED",
                 "message": "This receipt has already been redeemed."
             }, status=409)
 
@@ -271,7 +315,6 @@ class ReceiptVerifyView(UserLanguageMixin, APIView):
                 "created_at": parsed_data['created_at'],
                 "tin": tin,
                 "already_redeemed": False,
-                # Additional fields expected by frontend
                 "total_paid": float(total_amount),
                 "cashback_earned": float(cashback_earned),
                 "new_wallet_balance": float(balance_after),
@@ -300,5 +343,59 @@ class MeView(UserLanguageMixin, APIView):
             })
         return Response({
             "success": False,
+            "errors": serializer.errors
+        }, status=400)
+
+class LikedRestaurantView(UserLanguageMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, restaurant_id, action):
+        try:
+            restaurant = Restaurant.objects.get(id=restaurant_id)
+        except Restaurant.DoesNotExist:
+            return Response({
+                "success": False, 
+                "error_code": "RESTAURANT_NOT_FOUND", 
+                "message": "Restaurant not found."
+            }, status=404)
+
+        if action == 'add':
+            request.user.liked_restaurants.add(restaurant)
+        elif action == 'remove':
+            request.user.liked_restaurants.remove(restaurant)
+        else:
+            return Response({
+                "success": False, 
+                "error_code": "INVALID_ACTION", 
+                "message": "Action must be 'add' or 'remove'."
+            }, status=400)
+
+        return Response({
+            "success": True,
+            "message": f"Restaurant {action}ed successfully."
+        })
+
+class FCMDeviceView(UserLanguageMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = FCMDeviceSerializer(data=request.data)
+        if serializer.is_valid():
+            fcm_token = serializer.validated_data['fcm_token']
+            device_type = serializer.validated_data['device_type']
+            
+            # Update or create device registration
+            FCMDevice.objects.update_or_create(
+                fcm_token=fcm_token,
+                defaults={'user': request.user, 'device_type': device_type}
+            )
+            
+            return Response({
+                "success": True,
+                "message": "Device registered successfully."
+            })
+        return Response({
+            "success": False,
+            "error_code": "INVALID_DATA",
             "errors": serializer.errors
         }, status=400)
