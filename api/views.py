@@ -415,6 +415,21 @@ class MeView(UserLanguageMixin, APIView):
             "errors": serializer.errors
         }, status=400)
 
+class LikedRestaurantListView(UserLanguageMixin, generics.ListAPIView):
+    serializer_class = RestaurantSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.request.user.liked_restaurants.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            "success": True,
+            "data": serializer.data
+        })
+
 class LikedRestaurantView(UserLanguageMixin, APIView):
     permission_classes = [IsAuthenticated]
 
