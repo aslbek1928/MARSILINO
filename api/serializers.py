@@ -1,5 +1,26 @@
 from rest_framework import serializers
-from .models import Tag, Restaurant
+from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['phone_number', 'password', 'full_name']
+
+    def create(self, validated_data):
+        user = CustomUser.objects.create_user(
+            phone_number=validated_data['phone_number'],
+            password=validated_data['password'],
+            full_name=validated_data.get('full_name', '')
+        )
+        return user
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'phone_number', 'full_name', 'wallet_balance', 'language']
+
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,7 +41,6 @@ class RestaurantSerializer(serializers.ModelSerializer):
             return request.user.liked_restaurants.filter(id=obj.id).exists()
         return False
 
-from .models import CustomUser, WalletTransaction, FCMDevice
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:

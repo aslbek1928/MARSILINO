@@ -2,10 +2,19 @@ from django.urls import path, include
 from .views import (
     TagListView, RestaurantListView, WalletView, WalletAddView, 
     WalletTransferView, ReceiptVerifyView, MeView, 
-    WalletTransactionListView, LikedRestaurantView, FCMDeviceView
+    WalletTransactionListView, LikedRestaurantView, FCMDeviceView,
+    RegisterView, HealthCheckView
 )
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-v1_patterns = [
+api_patterns = [
+    path('health', HealthCheckView.as_view(), name='health-check'),
+    path('register', RegisterView.as_view(), name='api-register'),
+    path('registration', RegisterView.as_view()), # Alias
+    path('signin', TokenObtainPairView.as_view(), name='api-signin'),
+    path('login', TokenObtainPairView.as_view()), # Alias
+    path('token/refresh', TokenRefreshView.as_view(), name='api-token-refresh'),
+    
     path('tags', TagListView.as_view(), name='tag-list'),
     path('restaurants', RestaurantListView.as_view(), name='restaurant-list'),
     path('wallet', WalletView.as_view(), name='wallet'),
@@ -19,13 +28,7 @@ v1_patterns = [
 ]
 
 urlpatterns = [
-    path('v1/', include(v1_patterns)),
-    # Fallback/Legacy paths if needed, but the user wants v1
-    path('tags', TagListView.as_view()),
-    path('restaurants', RestaurantListView.as_view()),
-    path('wallet', WalletView.as_view()),
-    path('wallet/add', WalletAddView.as_view()),
-    path('wallet/transfer', WalletTransferView.as_view()),
-    path('receipt/verify', ReceiptVerifyView.as_view()),
-    path('me', MeView.as_view()),
+    path('v1/', include(api_patterns)),
+    # Fallback for root api access as requested by user's app
+    path('', include(api_patterns)),
 ]

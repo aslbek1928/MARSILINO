@@ -1,10 +1,17 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from django.utils import translation
-from .models import Tag, Restaurant
-from .serializers import TagSerializer, RestaurantSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.views import APIView
+from django.utils import translation, timezone
+from django.db import transaction
+import uuid, math
+from .models import Tag, Restaurant, RedeemedReceipt, WalletTransaction, CustomUser, FCMDevice
+from .serializers import (
+    TagSerializer, RestaurantSerializer, WalletTransactionSerializer, 
+    FCMDeviceSerializer, RegisterSerializer, UserProfileSerializer
+)
 from rest_framework.pagination import PageNumberPagination
+
 import math
 
 class UserLanguageMixin:
@@ -70,14 +77,31 @@ class RestaurantListView(UserLanguageMixin, generics.ListAPIView):
             "data": serializer.data
         })
 
-import uuid
-from django.db import transaction
-from django.utils import timezone
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from .models import RedeemedReceipt, WalletTransaction, CustomUser, FCMDevice
 from .services import verify_soliq_receipt, SoliqVerificationError
-from .serializers import WalletTransactionSerializer, FCMDeviceSerializer
+
+class HealthCheckView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response({"status": "ok", "message": "Backend is running"}, status=200)
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                "success": True,
+                "message": "User registered successfully",
+                "data": {
+                    "phone_number": user.phone_number,
+                    "full_name": user.full_name
+                }
+            }, status=201)
+        return Response({
+            "success": False,
+            "errors": serializer.errors
+        }, status=400)
 
 class WalletView(UserLanguageMixin, APIView):
     permission_classes = [IsAuthenticated]
@@ -321,7 +345,6 @@ class ReceiptVerifyView(UserLanguageMixin, APIView):
             }
         })
 
-from .serializers import UserProfileSerializer
 
 class MeView(UserLanguageMixin, APIView):
     permission_classes = [IsAuthenticated]
