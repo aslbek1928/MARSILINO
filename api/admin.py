@@ -29,3 +29,10 @@ class WalletTransactionAdmin(admin.ModelAdmin):
     list_display = ('transaction_id', 'user', 'type', 'amount', 'status', 'created_at')
     search_fields = ('transaction_id', 'user__phone_number')
     list_filter = ('type', 'status', 'created_at')
+
+from .models import OTP
+@admin.register(OTP)
+class OTPAdmin(admin.ModelAdmin):
+    list_display = ('phone_number', 'code', 'created_at', 'is_verified')
+    search_fields = ('phone_number', 'code')
+    list_filter = ('is_verified', 'created_at')

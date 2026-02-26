@@ -114,7 +114,8 @@ class OTPSendView(APIView):
         if serializer.is_valid():
             phone_number = serializer.validated_data['phone_number']
             code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-            OTP.objects.create(phone_number=phone_number, code=code)
+            user = CustomUser.objects.filter(phone_number=phone_number).first()
+            OTP.objects.create(phone_number=phone_number, code=code, user=user)
             return Response({
                 "success": True,
                 "message": "OTP sent successfully",
@@ -139,6 +140,11 @@ class OTPVerifyView(APIView):
                 if not created and full_name:
                     user.full_name = full_name
                     user.save()
+                
+                # Link the OTP to the user if it wasn't linked before
+                if not otp.user:
+                    otp.user = user
+                    otp.save()
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     "success": True,
