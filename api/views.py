@@ -5,10 +5,13 @@ from rest_framework.views import APIView
 from django.utils import translation, timezone
 from django.db import transaction
 import uuid, math
-from .models import Tag, Restaurant, RedeemedReceipt, WalletTransaction, CustomUser, FCMDevice
+from rest_framework_simplejwt.tokens import RefreshToken
+import random
+from .models import Tag, Restaurant, RedeemedReceipt, WalletTransaction, CustomUser, FCMDevice, OTP
 from .serializers import (
     TagSerializer, RestaurantSerializer, WalletTransactionSerializer, 
-    FCMDeviceSerializer, RegisterSerializer, UserProfileSerializer
+    FCMDeviceSerializer, RegisterSerializer, UserProfileSerializer,
+    OTPSendSerializer, OTPVerifySerializer
 )
 from rest_framework.pagination import PageNumberPagination
 
@@ -102,6 +105,49 @@ class RegisterView(APIView):
             "success": False,
             "errors": serializer.errors
         }, status=400)
+
+class OTPSendView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = OTPSendSerializer(data=request.data)
+        if serializer.is_valid():
+            phone_number = serializer.validated_data['phone_number']
+            code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+            OTP.objects.create(phone_number=phone_number, code=code)
+            return Response({
+                "success": True,
+                "message": "OTP sent successfully",
+                "otp_code": code
+            })
+        return Response({"success": False, "errors": serializer.errors}, status=400)
+
+class OTPVerifyView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = OTPVerifySerializer(data=request.data)
+        if serializer.is_valid():
+            phone_number = serializer.validated_data['phone_number']
+            code = serializer.validated_data['code']
+            full_name = serializer.validated_data.get('full_name', '')
+            otp = OTP.objects.filter(phone_number=phone_number, code=code, is_verified=False).first()
+            if otp:
+                otp.is_verified = True
+                otp.save()
+                user, created = CustomUser.objects.get_or_create(phone_number=phone_number, defaults={'full_name': full_name})
+                if not created and full_name:
+                    user.full_name = full_name
+                    user.save()
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    "success": True,
+                    "is_new_user": created,
+                    "tokens": {"refresh": str(refresh), "access": str(refresh.access_token)},
+                    "user": {"phone_number": user.phone_number, "full_name": user.full_name, "wallet_balance": float(user.wallet_balance)}
+                })
+            return Response({"success": False, "error_code": "INVALID_OTP", "message": "Incorrect or expired code."}, status=401)
+        return Response({"success": False, "errors": serializer.errors}, status=400)
 
 class WalletView(UserLanguageMixin, APIView):
     permission_classes = [IsAuthenticated]

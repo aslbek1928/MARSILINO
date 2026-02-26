@@ -125,3 +125,16 @@ class WalletTransaction(models.Model):
 
     def __str__(self):
         return f"{self.type} of {self.amount} for {self.user.phone_number}"
+
+
+class OTP(models.Model):
+    phone_number = models.CharField(max_length=20)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"OTP {self.code} for {self.phone_number}"

@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice
+from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice, OTP
+
+class OTPSendSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(max_length=20)
+
+class OTPVerifySerializer(serializers.Serializer):
+    phone_number = serializers.CharField(max_length=20)
+    code = serializers.CharField(max_length=6)
+    full_name = serializers.CharField(max_length=255, required=False, allow_blank=True)
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
