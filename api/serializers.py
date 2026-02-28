@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice, OTP
+from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice, OTP, RestaurantImage
 
 class OTPSendSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=20)
@@ -35,13 +35,22 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ['id', 'name', 'icon_url']
 
+class RestaurantImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantImage
+        fields = ['id', 'image']
+
 class RestaurantSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
+    media = RestaurantImageSerializer(many=True, read_only=True)
     is_liked = serializers.SerializerMethodField()
     
     class Meta:
         model = Restaurant
-        fields = ['id', 'name', 'description', 'tin', 'cashback_percentage', 'tags', 'is_liked']
+        fields = [
+            'id', 'name', 'description', 'tin', 'cashback_percentage', 
+            'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media'
+        ]
 
     def get_is_liked(self, obj):
         request = self.context.get('request')

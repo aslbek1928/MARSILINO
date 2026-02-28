@@ -80,9 +80,21 @@ class Restaurant(models.Model):
     description = models.TextField(_("description"), blank=True)
     cashback_percentage = models.DecimalField(_("cashback percentage"), max_digits=5, decimal_places=2, default=5.0)
     tags = models.ManyToManyField(Tag, related_name='restaurants', blank=True)
+    logo = models.ImageField(_("logo"), upload_to='restaurant_logos/', null=True, blank=True)
+    menu = models.ImageField(_("menu"), upload_to='restaurant_menus/', null=True, blank=True)
+    location_link = models.URLField(_("location link"), max_length=500, blank=True)
 
     def __str__(self):
         return self.name
+
+
+class RestaurantImage(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='media')
+    image = models.ImageField(_("image"), upload_to='restaurant_media/')
+
+    def __str__(self):
+        return f"Image for {self.restaurant.name}"
+
 
 
 class RedeemedReceipt(models.Model):
