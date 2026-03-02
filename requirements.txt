@@ -12,6 +12,10 @@ python-dotenv==1.2.1
 gunicorn==23.0.0
 whitenoise==6.11.0
 
+# Media Storage (Cloudinary)
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0
+
 # Project Features
 django-cors-headers==4.9.0
 django-modeltranslation==0.19.17
