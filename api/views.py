@@ -321,25 +321,42 @@ class ReceiptVerifyView(UserLanguageMixin, APIView):
         except SoliqVerificationError as e:
             return Response({"success": False, "error_code": "INVALID_FORMAT", "message": str(e)}, status=400)
 
+        # Extract data from the parsed QR code receipt
         receipt_id = parsed_data['receipt_id']
         tin = parsed_data['tin']
         total_amount = parsed_data['total_amount']
 
-        try:
-            restaurant = Restaurant.objects.get(tin=tin)
-        except Restaurant.DoesNotExist:
-            return Response({
-                "success": False,
-                "error_code": "RESTAURANT_MISMATCH",
-                "message": "This receipt does not belong to any registered restaurant."
-            }, status=422)
+        # If the mobile app provides the restaurant ID they are attempting to scan for,
+        # we strictly match the TIN of that specific restaurant against the TIN on the receipt
+        if req_restaurant_id:
+            try:
+                restaurant = Restaurant.objects.get(id=req_restaurant_id)
+            except Restaurant.DoesNotExist:
+                return Response({
+                    "success": False,
+                    "error_code": "RESTAURANT_NOT_FOUND",
+                    "message": "The requesting restaurant could not be found."
+                }, status=404)
 
-        if req_restaurant_id and str(restaurant.id) != str(req_restaurant_id):
-            return Response({
-                "success": False,
-                "error_code": "RESTAURANT_MISMATCH",
-                "message": "This receipt does not belong to the requesting restaurant."
-            }, status=422)
+            # Compare the exact TIN from the QR to the known TIN of the requested restaurant
+            if str(restaurant.tin) != str(tin):
+                return Response({
+                    "success": False,
+                    "error_code": "RESTAURANT_MISMATCH",
+                    "message": "This receipt's tax identification number (TIN) does not match the chosen restaurant."
+                }, status=422)
+                
+        else:
+            # Fallback if the mobile app didn't send a specific restaurant ID,
+            # we try to see if ANY registered restaurant matches this TIN.
+            try:
+                restaurant = Restaurant.objects.get(tin=tin)
+            except Restaurant.DoesNotExist:
+                return Response({
+                    "success": False,
+                    "error_code": "RESTAURANT_MISMATCH",
+                    "message": "This receipt does not belong to any registered restaurant."
+                }, status=422)
 
         already_redeemed = RedeemedReceipt.objects.filter(receipt_id=receipt_id).exists()
 

@@ -1,5 +1,8 @@
 from urllib.parse import urlparse, parse_qs
 
+import requests
+from bs4 import BeautifulSoup
+
 class SoliqVerificationError(Exception):
     def __init__(self, message, raw_response=None):
         self.message = message
@@ -8,34 +11,83 @@ class SoliqVerificationError(Exception):
 
 def verify_soliq_receipt(url):
     """
-    Parses a Soliq QR code URL and simulates validation.
-    URL format: https://ofd.soliq.uz/check?t=UZ123456789&r=1&c=20250221120000&s=150000.00
+    Fetches a Soliq QR code URL and extracts data via HTML scraping.
     """
     try:
+        # Extract basic info from the URL to build the receipt_id and date
         parsed_url = urlparse(url)
         query_params = parse_qs(parsed_url.query)
         
-        # Required parameters according to Soliq spec
-        # t = TIN (INN)
-        # r = receipt number (fiskal belgi)
-        # c = datetime
-        # s = sum/total amount
-        
-        if 't' not in query_params or 'r' not in query_params or 'c' not in query_params or 's' not in query_params:
-            raise SoliqVerificationError("Invalid QR code format.")
+        # We still need receipt number & date from URL for our unique constraints
+        if 'r' not in query_params or 'c' not in query_params:
+            raise SoliqVerificationError("Invalid QR code format. Missing receipt number or date.")
             
-        tin = query_params['t'][0]
         receipt_number = query_params['r'][0]
         datetime_str = query_params['c'][0]
-        amount_str = query_params['s'][0]
         
-        # Simulate API check (in reality, you'd make an HTTP request to OFD)
-        # For our simulation, we'll assume valid if format is correct
-        
-        total_amount = float(amount_str)
-        # Assuming the date format is YYYYMMDDHHMMSS
+        # Format the date properly into a standard timestamp
         formatted_date = f"{datetime_str[:4]}-{datetime_str[4:6]}-{datetime_str[6:8]}T{datetime_str[8:10]}:{datetime_str[10:12]}:{datetime_str[12:14]}Z"
         
+        # Now fetch the actual webpage to get the TIN and Total Amount safely
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        tin = None
+        total_amount = None
+
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Check if receipt is marked as fake by Soliq
+                if "Chek qalbaki ravishda yaratilgan" in response.text:
+                     raise SoliqVerificationError("This receipt is marked as fraudulent (qalbaki) by Soliq.")
+                
+                # 1. Extract TIN
+                i_tags = soup.find_all('i')
+                for i in i_tags:
+                    if i.text and i.text.strip().isdigit() and len(i.text.strip()) == 9:
+                        tin = i.text.strip()
+                        break
+                        
+                # 2. Extract Total Amount (Jami to'lov)
+                td_elements = soup.find_all('td')
+                for idx, td in enumerate(td_elements):
+                    if td.text and ("Jami to`lov:" in td.text or "Jami to'lov:" in td.text):
+                        for offset in range(1, 4):
+                           if idx + offset < len(td_elements):
+                              candidate = td_elements[idx + offset].text.strip()
+                              cand_clean = candidate.replace(',', '')
+                              try:
+                                  total_amount = float(cand_clean)
+                                  break
+                              except ValueError:
+                                  pass
+                        if total_amount is not None:
+                            break
+        except requests.RequestException:
+            pass # Request failed, fallback to URL logic below
+            
+        # 3. Fallback Logic: If BeautifulSoup failed or elements weren't found,
+        # extract directly from the URL query params as our backup default
+        if not tin and 't' in query_params:
+            tin = query_params['t'][0]
+            
+        if total_amount is None and 's' in query_params:
+            try:
+                total_amount = float(query_params['s'][0])
+            except ValueError:
+                pass
+                
+        # Final validation
+        if not tin:
+             raise SoliqVerificationError("Could not locate the TIN (Tax ID) on the digital receipt or URL.")
+        if total_amount is None:
+             raise SoliqVerificationError("Could not locate the Total Amount on the digital receipt or URL.")
+
         return {
             "receipt_id": f"soliq_{tin}_{receipt_number}_{datetime_str}",
             "receipt_number": receipt_number,
@@ -43,8 +95,11 @@ def verify_soliq_receipt(url):
             "total_amount": total_amount,
             "created_at": formatted_date
         }
+
+    except requests.RequestException as e:
+        raise SoliqVerificationError(f"Network error when verifying receipt: {str(e)}")
     except ValueError:
-        raise SoliqVerificationError("Invalid QR code format.")
+        raise SoliqVerificationError("Invalid QR code format. Missing or malformed data.")
     except Exception as e:
         if isinstance(e, SoliqVerificationError):
             raise
