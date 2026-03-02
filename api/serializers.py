@@ -49,7 +49,8 @@ class RestaurantSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = [
             'id', 'name', 'description', 'tin', 'cashback_percentage', 
-            'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media'
+            'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media',
+            'contact', 'working_days_and_hours'
         ]
 
     def get_is_liked(self, obj):
