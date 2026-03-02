@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',  # Must come BEFORE staticfiles
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'cloudinary',
     
     # 3rd party
