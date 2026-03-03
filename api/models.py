@@ -86,6 +86,18 @@ class Restaurant(models.Model):
     contact = models.CharField(_("contact number"), max_length=50, blank=True)
     working_days_and_hours = models.CharField(_("working days and hours"), max_length=200, blank=True)
 
+    @property
+    def average_rating(self):
+        reviews = self.reviews.all()
+        if reviews.exists():
+            total = sum(review.rating for review in reviews)
+            return round(total / reviews.count(), 1)
+        return 0.0
+
+    @property
+    def total_reviews(self):
+        return self.reviews.count()
+
     def __str__(self):
         return self.name
 
@@ -153,3 +165,22 @@ class OTP(models.Model):
 
     def __str__(self):
         return f"OTP {self.code} for {self.phone_number}"
+
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+class Review(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reviews')
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        verbose_name=_("rating (1-10)")
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'restaurant')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.phone_number} rated {self.restaurant.name} {self.rating}/10"

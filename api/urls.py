@@ -4,7 +4,7 @@ from .views import (
     WalletTransferView, ReceiptVerifyView, ReceiptScrapeView, MeView, 
     WalletTransactionListView, LikedRestaurantView, FCMDeviceView,
     RegisterView, HealthCheckView, OTPSendView, OTPVerifyView,
-    LikedRestaurantListView
+    LikedRestaurantListView, RestaurantRateView
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -18,8 +18,10 @@ api_patterns = [
     path('login/', TokenObtainPairView.as_view()), # Alias
     path('token/refresh/', TokenRefreshView.as_view(), name='api-token-refresh'),
     
+    
     path('tags/', TagListView.as_view(), name='tag-list'),
     path('restaurants/', RestaurantListView.as_view(), name='restaurant-list'),
+    path('restaurants/<str:restaurant_id>/rate/', RestaurantRateView.as_view(), name='restaurant-rate'),
     path('wallet/', WalletView.as_view(), name='wallet'),
     path('wallet/transactions/', WalletTransactionListView.as_view(), name='wallet-transactions'),
     path('wallet/add/', WalletAddView.as_view(), name='wallet-add'),

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice, OTP, RestaurantImage
+from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice, OTP, RestaurantImage, Review
 
 class OTPSendSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=20)
@@ -8,6 +8,18 @@ class OTPVerifySerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=20)
     code = serializers.CharField(max_length=6)
     full_name = serializers.CharField(max_length=255, required=False, allow_blank=True)
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['rating', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+    def validate_rating(self, value):
+        if value < 1 or value > 10:
+            raise serializers.ValidationError("Rating must be between 1 and 10.")
+        return value
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -44,13 +56,15 @@ class RestaurantSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     media = RestaurantImageSerializer(many=True, read_only=True)
     is_liked = serializers.SerializerMethodField()
+    average_rating = serializers.FloatField(read_only=True)
+    total_reviews = serializers.IntegerField(read_only=True)
     
     class Meta:
         model = Restaurant
         fields = [
             'id', 'name', 'description', 'tin', 'cashback_percentage', 
             'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media',
-            'contact', 'working_days_and_hours'
+            'contact', 'working_days_and_hours', 'average_rating', 'total_reviews'
         ]
 
     def get_is_liked(self, obj):

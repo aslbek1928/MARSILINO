@@ -11,7 +11,7 @@ from .models import Tag, Restaurant, RedeemedReceipt, WalletTransaction, CustomU
 from .serializers import (
     TagSerializer, RestaurantSerializer, WalletTransactionSerializer, 
     FCMDeviceSerializer, RegisterSerializer, UserProfileSerializer,
-    OTPSendSerializer, OTPVerifySerializer
+    OTPSendSerializer, OTPVerifySerializer, ReviewSerializer
 )
 from rest_framework.pagination import PageNumberPagination
 
@@ -540,5 +540,52 @@ class FCMDeviceView(UserLanguageMixin, APIView):
         return Response({
             "success": False,
             "error_code": "INVALID_DATA",
+            "errors": serializer.errors
+        }, status=400)
+
+
+class RestaurantRateView(UserLanguageMixin, APIView):
+    """
+    Allows an authenticated user to rate a restaurant from 1 to 10.
+    If the user has already rated the restaurant, their existing rating is updated.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, restaurant_id):
+        try:
+            restaurant = Restaurant.objects.get(id=restaurant_id)
+        except Restaurant.DoesNotExist:
+            return Response({
+                "success": False, 
+                "error_code": "RESTAURANT_NOT_FOUND", 
+                "message": "Restaurant not found."
+            }, status=404)
+
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            rating = serializer.validated_data['rating']
+            
+            # Update or create the review for this specific user and restaurant
+            from .models import Review
+            review, created = Review.objects.update_or_create(
+                user=request.user,
+                restaurant=restaurant,
+                defaults={'rating': rating}
+            )
+            
+            return Response({
+                "success": True,
+                "message": f"Successfully {'added' if created else 'updated'} rating for {restaurant.name}.",
+                "data": {
+                    "restaurant_id": restaurant.id,
+                    "new_rating": rating,
+                    "average_rating": restaurant.average_rating,
+                    "total_reviews": restaurant.total_reviews
+                }
+            })
+            
+        return Response({
+            "success": False,
+            "error_code": "INVALID_RATING",
             "errors": serializer.errors
         }, status=400)
