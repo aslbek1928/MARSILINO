@@ -57,26 +57,55 @@ def verify_soliq_receipt(url):
                 if "Chek qalbaki ravishda yaratilgan" in response.text:
                      raise SoliqVerificationError("This receipt is marked as fraudulent (qalbaki) by Soliq.")
                 
-                # 1. Extract TIN
-                i_tags = soup.find_all('i')
-                for i in i_tags:
-                    if i.text and i.text.strip().isdigit() and len(i.text.strip()) == 9:
-                        tin = i.text.strip()
-                        break
+                # 1. Extract TIN - Highly robust text search approach
+                # Soliq has multiple receipt formats. Some put TIN in <i>, some in a labeled <td>
+                tds = soup.find_all('td')
+                for idx, td in enumerate(tds):
+                    text = td.text.strip()
+                    # Check for "Komitent STIR" or similar labels
+                    if 'STIR' in text or 'INN' in text or 'СТИР' in text or 'ИНН' in text:
+                        # Look ahead in the next few cells for a 9 or 14 digit number
+                        for offset in range(1, 4):
+                            if idx + offset < len(tds):
+                                cand_text = tds[idx + offset].text.strip()
+                                # 9 digits (TIN) or 14 digits (PINFL)
+                                import re
+                                if re.match(r'^\d{9}$', cand_text) or re.match(r'^\d{14}$', cand_text):
+                                    tin = cand_text
+                                    break
+                        if tin: break
+
+                # Fallback to the old method: looking for an isolated <i> tag with exactly 9 digits
+                if not tin:
+                    i_tags = soup.find_all('i')
+                    for i in i_tags:
+                        text = i.text.strip()
+                        import re
+                        if re.match(r'^\d{9}$', text):
+                            tin = text
+                            break
                         
                 # 2. Extract Total Amount (Jami to'lov)
-                td_elements = soup.find_all('td')
-                for idx, td in enumerate(td_elements):
-                    if td.text and ("Jami to`lov:" in td.text or "Jami to'lov:" in td.text):
-                        for offset in range(1, 4):
-                           if idx + offset < len(td_elements):
-                              candidate = td_elements[idx + offset].text.strip()
-                              cand_clean = candidate.replace(',', '')
-                              try:
-                                  total_amount = float(cand_clean)
-                                  break
-                              except ValueError:
-                                  pass
+                for idx, td in enumerate(tds):
+                    if td.text and ("Jami to`lov:" in td.text or "Jami to'lov:" in td.text or "Итого:" in td.text):
+                        # The user's provided HTML shows the amount is in the IMMEDIATE next td element
+                        if idx + 1 < len(tds):
+                            candidate = tds[idx + 1].text.strip()
+                            # Clean up spaces and commas e.g., "30,000.00" -> "30000.00"
+                            cand_clean = candidate.replace(',', '').replace(' ', '')
+                            try:
+                                total_amount = float(cand_clean)
+                                break
+                            except ValueError:
+                                # Look a bit further just in case there are empty cells
+                                for offset in range(2, 4):
+                                    if idx + offset < len(tds):
+                                        c = tds[idx + offset].text.strip().replace(',', '').replace(' ', '')
+                                        try:
+                                            total_amount = float(c)
+                                            break
+                                        except ValueError:
+                                            pass
                         if total_amount is not None:
                             break
         except requests.RequestException:
