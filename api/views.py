@@ -415,6 +415,42 @@ class ReceiptVerifyView(UserLanguageMixin, APIView):
         })
 
 
+class ReceiptScrapeView(UserLanguageMixin, APIView):
+    """
+    A standalone endpoint specifically for scraping data from a Soliq QR code URL.
+    This doesn't verify or add cashback, it just returns the scraped data.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        qr_code = request.data.get('qr_code_url')
+        
+        if not qr_code:
+            return Response({
+                "success": False, 
+                "error_code": "MISSING_DATA", 
+                "message": "qr_code_url is required"
+            }, status=400)
+
+        try:
+            parsed_data = verify_soliq_receipt(qr_code)
+            return Response({
+                "success": True,
+                "data": {
+                    "tin": parsed_data['tin'],
+                    "total_amount": float(parsed_data['total_amount']),
+                    "receipt_id": parsed_data['receipt_id'],
+                    "created_at": parsed_data['created_at']
+                }
+            })
+        except SoliqVerificationError as e:
+            return Response({
+                "success": False, 
+                "error_code": "SCRAPE_FAILED", 
+                "message": str(e)
+            }, status=422)
+
+
 class MeView(UserLanguageMixin, APIView):
     permission_classes = [IsAuthenticated]
 

@@ -1,7 +1,7 @@
 from django.urls import path, include
 from .views import (
     TagListView, RestaurantListView, WalletView, WalletAddView, 
-    WalletTransferView, ReceiptVerifyView, MeView, 
+    WalletTransferView, ReceiptVerifyView, ReceiptScrapeView, MeView, 
     WalletTransactionListView, LikedRestaurantView, FCMDeviceView,
     RegisterView, HealthCheckView, OTPSendView, OTPVerifyView,
     LikedRestaurantListView
@@ -25,6 +25,7 @@ api_patterns = [
     path('wallet/add/', WalletAddView.as_view(), name='wallet-add'),
     path('wallet/transfer/', WalletTransferView.as_view(), name='wallet-transfer'),
     path('receipt/verify/', ReceiptVerifyView.as_view(), name='receipt-verify'),
+    path('receipt/scrape/', ReceiptScrapeView.as_view(), name='receipt-scrape'),
     path('me/', MeView.as_view(), name='me'),
     path('me/liked-restaurants/', LikedRestaurantListView.as_view(), name='liked-restaurant-list'),
     path('me/liked-restaurants/<str:restaurant_id>/<str:action>/', LikedRestaurantView.as_view(), name='liked-restaurant'),

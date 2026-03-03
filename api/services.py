@@ -71,22 +71,11 @@ def verify_soliq_receipt(url):
         except requests.RequestException:
             pass # Request failed, fallback to URL logic below
             
-        # 3. Fallback Logic: If BeautifulSoup failed or elements weren't found,
-        # extract directly from the URL query params as our backup default
-        if not tin and 't' in query_params:
-            tin = query_params['t'][0]
-            
-        if total_amount is None and 's' in query_params:
-            try:
-                total_amount = float(query_params['s'][0])
-            except ValueError:
-                pass
-                
-        # Final validation
+        # 3. Final validation
         if not tin:
-             raise SoliqVerificationError("Could not locate the TIN (Tax ID) on the digital receipt or URL.")
+             raise SoliqVerificationError("Could not locate the TIN (Tax ID) on the digital receipt HTML. Scraping might be blocked or HTML format changed.")
         if total_amount is None:
-             raise SoliqVerificationError("Could not locate the Total Amount on the digital receipt or URL.")
+             raise SoliqVerificationError("Could not locate the Total Amount on the digital receipt HTML. Scraping might be blocked or HTML format changed.")
 
         return {
             "receipt_id": f"soliq_{tin}_{receipt_number}_{datetime_str}",
