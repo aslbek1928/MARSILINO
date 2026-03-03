@@ -1,6 +1,6 @@
 from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
-from .models import CustomUser, Tag, Restaurant, RedeemedReceipt, WalletTransaction, RestaurantImage
+from .models import CustomUser, Tag, Restaurant, RedeemedReceipt, WalletTransaction, RestaurantImage, Review
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -18,7 +18,7 @@ class RestaurantImageInline(admin.TabularInline):
 
 @admin.register(Restaurant)
 class RestaurantAdmin(TranslationAdmin):
-    list_display = ('id', 'name', 'tin', 'cashback_percentage')
+    list_display = ('id', 'name', 'tin', 'cashback_percentage', 'average_rating', 'total_reviews')
     search_fields = ('id', 'name', 'tin')
     filter_horizontal = ('tags',)
     inlines = [RestaurantImageInline]
@@ -41,3 +41,9 @@ class OTPAdmin(admin.ModelAdmin):
     list_display = ('phone_number', 'code', 'created_at', 'is_verified')
     search_fields = ('phone_number', 'code')
     list_filter = ('is_verified', 'created_at')
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('restaurant', 'user', 'rating', 'created_at')
+    list_filter = ('rating', 'created_at', 'restaurant')
+    search_fields = ('user__phone_number', 'restaurant__name')
