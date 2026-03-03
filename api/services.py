@@ -29,8 +29,19 @@ def verify_soliq_receipt(url):
         formatted_date = f"{datetime_str[:4]}-{datetime_str[4:6]}-{datetime_str[6:8]}T{datetime_str[8:10]}:{datetime_str[10:12]}:{datetime_str[12:14]}Z"
         
         # Now fetch the actual webpage to get the TIN and Total Amount safely
+        # Use a comprehensive set of headers to bypass basic bot protection on Render
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0'
         }
         
         tin = None
