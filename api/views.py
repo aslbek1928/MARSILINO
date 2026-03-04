@@ -546,7 +546,7 @@ class FCMDeviceView(UserLanguageMixin, APIView):
 
 class RestaurantRateView(UserLanguageMixin, APIView):
     """
-    Allows an authenticated user to rate a restaurant from 1 to 10.
+    Allows an authenticated user to rate a restaurant from 1 to 5.
     If the user has already rated the restaurant, their existing rating is updated.
     """
     permission_classes = [IsAuthenticated]

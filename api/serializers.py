@@ -17,8 +17,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
     def validate_rating(self, value):
-        if value < 1 or value > 10:
-            raise serializers.ValidationError("Rating must be between 1 and 10.")
+        if value < 1 or value > 5:
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
         return value
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -58,13 +58,15 @@ class RestaurantSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
     average_rating = serializers.FloatField(read_only=True)
     total_reviews = serializers.IntegerField(read_only=True)
+    reviews = ReviewSerializer(many=True, read_only=True)
     
     class Meta:
         model = Restaurant
         fields = [
             'id', 'name', 'description', 'tin', 'cashback_percentage', 
             'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media',
-            'contact', 'working_days_and_hours', 'average_rating', 'total_reviews'
+            'contact', 'working_days_and_hours', 'average_rating', 'total_reviews',
+            'reviews'
         ]
 
     def get_is_liked(self, obj):

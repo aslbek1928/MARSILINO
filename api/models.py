@@ -172,8 +172,8 @@ class Review(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reviews')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='reviews')
     rating = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
-        verbose_name=_("rating (1-10)")
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_("rating (1-5)")
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -183,4 +183,4 @@ class Review(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.user.phone_number} rated {self.restaurant.name} {self.rating}/10"
+        return f"{self.user.phone_number} rated {self.restaurant.name} {self.rating}/5"
