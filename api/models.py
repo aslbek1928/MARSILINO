@@ -27,6 +27,8 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(phone_number, password, **extra_fields)
 
 
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+
 class CustomUser(AbstractUser):
     LANGUAGE_CHOICES = (
         ('en', 'English'),
@@ -42,6 +44,18 @@ class CustomUser(AbstractUser):
         choices=LANGUAGE_CHOICES, 
         default='ru',
         verbose_name=_("language preference")
+    )
+    card_number = models.CharField(
+        _("card number"), 
+        max_length=16, 
+        blank=True,
+        validators=[
+            RegexValidator(
+                regex='^\d{16}$',
+                message='Card number must be exactly 16 digits.',
+                code='invalid_card_number'
+            )
+        ]
     )
     liked_restaurants = models.ManyToManyField('Restaurant', related_name='liked_by', blank=True)
 

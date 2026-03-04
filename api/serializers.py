@@ -42,7 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'phone_number', 'full_name', 'wallet_balance', 'language']
+        fields = ['id', 'phone_number', 'full_name', 'wallet_balance', 'language', 'card_number']
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -89,7 +89,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'phone_number', 'full_name', 'wallet_balance', 'language']
+        fields = ['id', 'phone_number', 'full_name', 'wallet_balance', 'language', 'card_number']
         read_only_fields = ['id', 'phone_number', 'wallet_balance']
 
 class WalletTransactionSerializer(serializers.ModelSerializer):
