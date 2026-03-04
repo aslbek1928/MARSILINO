@@ -7,7 +7,7 @@ from .models import (
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('phone_number', 'wallet_balance', 'is_staff', 'is_active')
+    list_display = ('phone_number', 'card_number', 'wallet_balance', 'is_staff', 'is_active')
     search_fields = ('phone_number',)
 
 @admin.register(Tag)
