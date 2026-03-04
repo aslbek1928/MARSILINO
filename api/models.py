@@ -113,6 +113,14 @@ class RestaurantImage(models.Model):
         return f"Image for {self.restaurant.name}"
 
 
+class RestaurantMenuImage(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='menu_images')
+    image = models.ImageField(_("menu image"), upload_to='restaurant_menus/')
+
+    def __str__(self):
+        return f"Menu Page for {self.restaurant.name}"
+
+
 
 class RedeemedReceipt(models.Model):
     receipt_id = models.CharField(max_length=100, unique=True)

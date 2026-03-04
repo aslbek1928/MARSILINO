@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice, OTP, RestaurantImage, Review
+from .models import (
+    Tag, Restaurant, CustomUser, WalletTransaction, FCMDevice, 
+    OTP, RestaurantImage, Review, RestaurantMenuImage
+)
 
 class OTPSendSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=20)
@@ -52,6 +55,11 @@ class RestaurantImageSerializer(serializers.ModelSerializer):
         model = RestaurantImage
         fields = ['id', 'image']
 
+class RestaurantMenuImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantMenuImage
+        fields = ['id', 'image']
+
 class RestaurantSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     media = RestaurantImageSerializer(many=True, read_only=True)
@@ -59,6 +67,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
     average_rating = serializers.FloatField(read_only=True)
     total_reviews = serializers.IntegerField(read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
+    menu_images = RestaurantMenuImageSerializer(many=True, read_only=True)
     
     class Meta:
         model = Restaurant
@@ -67,7 +76,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media',
             'contact', 'working_days_and_hours', 'average_rating', 'total_reviews',
             'reviews', 'location_description_en', 'location_description_ru', 
-            'location_description_uz'
+            'location_description_uz', 'menu_images'
         ]
 
     def get_is_liked(self, obj):
