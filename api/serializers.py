@@ -73,7 +73,7 @@ class RestaurantSerializer(serializers.ModelSerializer):
         model = Restaurant
         fields = [
             'id', 'name', 'description', 'tin', 'cashback_percentage', 
-            'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media',
+            'tags', 'is_liked', 'logo', 'location_link', 'media',
             'contact', 'working_days_and_hours', 'average_rating', 'total_reviews',
             'reviews', 'location_description_en', 'location_description_ru', 
             'location_description_uz', 'menu_images'

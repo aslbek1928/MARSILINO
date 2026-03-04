@@ -81,7 +81,6 @@ class Restaurant(models.Model):
     cashback_percentage = models.DecimalField(_("cashback percentage"), max_digits=5, decimal_places=2, default=5.0)
     tags = models.ManyToManyField(Tag, related_name='restaurants', blank=True)
     logo = models.ImageField(_("logo"), upload_to='restaurant_logos/', null=True, blank=True)
-    menu = models.ImageField(_("menu"), upload_to='restaurant_menus/', null=True, blank=True)
     location_link = models.URLField(_("location link"), max_length=500, blank=True)
     contact = models.CharField(_("contact number"), max_length=50, blank=True)
     working_days_and_hours = models.CharField(_("working days and hours"), max_length=200, blank=True)
