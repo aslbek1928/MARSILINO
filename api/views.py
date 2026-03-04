@@ -55,7 +55,6 @@ class TagListView(UserLanguageMixin, generics.ListAPIView):
 class RestaurantListView(UserLanguageMixin, generics.ListAPIView):
     serializer_class = RestaurantSerializer
     permission_classes = [AllowAny]
-    pagination_class = CustomPagination
     
     def get_queryset(self):
         queryset = Restaurant.objects.all()
@@ -65,15 +64,16 @@ class RestaurantListView(UserLanguageMixin, generics.ListAPIView):
             tag_ids = [t.strip() for t in tags_param.split(',')]
             for tag_id in tag_ids:
                 queryset = queryset.filter(tags__id=tag_id)
+        
+        # Add filtering by specific restaurant ID
+        restaurant_id = self.request.query_params.get('id') or self.request.query_params.get('restaurant_id')
+        if restaurant_id:
+            queryset = queryset.filter(id=restaurant_id)
+            
         return queryset.distinct().order_by('name')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
         serializer = self.get_serializer(queryset, many=True)
         return Response({
             "success": True,

@@ -66,7 +66,8 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'id', 'name', 'description', 'tin', 'cashback_percentage', 
             'tags', 'is_liked', 'logo', 'menu', 'location_link', 'media',
             'contact', 'working_days_and_hours', 'average_rating', 'total_reviews',
-            'reviews'
+            'reviews', 'location_description_en', 'location_description_ru', 
+            'location_description_uz'
         ]
 
     def get_is_liked(self, obj):

@@ -85,6 +85,9 @@ class Restaurant(models.Model):
     location_link = models.URLField(_("location link"), max_length=500, blank=True)
     contact = models.CharField(_("contact number"), max_length=50, blank=True)
     working_days_and_hours = models.CharField(_("working days and hours"), max_length=200, blank=True)
+    location_description_en = models.TextField(_("location description (EN)"), blank=True)
+    location_description_ru = models.TextField(_("location description (RU)"), blank=True)
+    location_description_uz = models.TextField(_("location description (UZ)"), blank=True)
 
     @property
     def average_rating(self):
