@@ -508,7 +508,7 @@ class UserCardUpdateView(UserLanguageMixin, APIView):
 
         user.card_number = card_number
         try:
-            user.full_clean()
+            user.full_clean(exclude=['password'])
             user.save()
             return Response({
                 "success": True,
