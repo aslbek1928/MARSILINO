@@ -474,6 +474,57 @@ class MeView(UserLanguageMixin, APIView):
             "errors": serializer.errors
         }, status=400)
 
+class UserCardUpdateView(UserLanguageMixin, APIView):
+    """
+    Allows updating a user's 16-digit card number via a GET request.
+    Example: GET /api/v1/me/card/add/?phone_number=+998901234567&card_number=8600123456789012
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        phone_number = request.query_params.get('phone_number')
+        card_number = request.query_params.get('card_number')
+        
+        if not phone_number or not card_number:
+            return Response({
+                "success": False,
+                "error_code": "MISSING_PARAMETERS",
+                "message": "Both phone_number and card_number query parameters are required."
+            }, status=400)
+
+        # Ensure phone number has '+' prefix if missing but provided as a query param
+        if not phone_number.startswith('+'):
+            phone_number = '+' + phone_number.lstrip(' ')
+
+        from .models import CustomUser
+        try:
+            user = CustomUser.objects.get(phone_number=phone_number)
+        except CustomUser.DoesNotExist:
+            return Response({
+                "success": False,
+                "error_code": "USER_NOT_FOUND",
+                "message": f"User with phone number {phone_number} not found."
+            }, status=404)
+
+        user.card_number = card_number
+        try:
+            user.full_clean()
+            user.save()
+            return Response({
+                "success": True,
+                "message": "Card number updated successfully.",
+                "data": {
+                    "phone_number": user.phone_number,
+                    "card_number": user.card_number
+                }
+            })
+        except Exception as e:
+            return Response({
+                "success": False,
+                "error_code": "INVALID_CARD_NUMBER",
+                "message": str(e)
+            }, status=400)
+
 class LikedRestaurantListView(UserLanguageMixin, generics.ListAPIView):
     serializer_class = RestaurantSerializer
     permission_classes = [IsAuthenticated]

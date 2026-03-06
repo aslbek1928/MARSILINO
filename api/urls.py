@@ -4,7 +4,7 @@ from .views import (
     WalletTransferView, ReceiptVerifyView, ReceiptScrapeView, MeView, 
     WalletTransactionListView, LikedRestaurantView, FCMDeviceView,
     RegisterView, HealthCheckView, OTPSendView, OTPVerifyView,
-    LikedRestaurantListView, RestaurantRateView
+    LikedRestaurantListView, RestaurantRateView, UserCardUpdateView
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -29,6 +29,7 @@ api_patterns = [
     path('receipt/verify/', ReceiptVerifyView.as_view(), name='receipt-verify'),
     path('receipt/scrape/', ReceiptScrapeView.as_view(), name='receipt-scrape'),
     path('me/', MeView.as_view(), name='me'),
+    path('me/card/add/', UserCardUpdateView.as_view(), name='user-card-update'),
     path('me/liked-restaurants/', LikedRestaurantListView.as_view(), name='liked-restaurant-list'),
     path('me/liked-restaurants/<str:restaurant_id>/<str:action>/', LikedRestaurantView.as_view(), name='liked-restaurant'),
     path('me/device/', FCMDeviceView.as_view(), name='device-registration'),
